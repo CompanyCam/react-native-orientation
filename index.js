@@ -96,7 +96,9 @@ module.exports = {
 
   getInitialOrientation() {
     return Orientation.initialOrientation;
-  }
+  },
 
-  const orientationEnum = Orientation.orientationEnum;
+  getOrientations() {
+    return Orientation.orientationEnum;
+  }
 }
