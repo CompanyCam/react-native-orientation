@@ -12,8 +12,19 @@
 #import "RCTEventEmitter.h"
 #endif
 
+typedef NS_ENUM( NSInteger, CCCameraOrientation ) {
+    CCCameraOrientationPortrait,
+    CCCameraOrientationLandscapeLeft,
+    CCCameraOrientationLandscapeRight,
+    CCCameraOrientationPortraitUpsideDown,
+};
+
 @interface Orientation : RCTEventEmitter <RCTBridgeModule>
+
+@property (nonatomic, assign) CCCameraOrientation camOrientation;
+
 + (void)setOrientation: (UIInterfaceOrientationMask)orientation;
 + (UIInterfaceOrientationMask)getOrientation;
+
 @end
 

@@ -18,6 +18,7 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
 - (instancetype)init
 {
     if ((self = [super init])) {
+        [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChange:) name:@"UIDeviceOrientationDidChangeNotification" object:nil];
     }
     return self;
@@ -25,7 +26,9 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
 
 - (NSArray<NSString *> *)supportedEvents
 {
-    return @[@"specificOrientationDidChange", @"orientationDidChange"];
+    return @[@"specificOrientationDidChange",
+             @"orientationDidChange",
+             @"CCCameraOrientationChange"];
 }
 
 - (void)dealloc
@@ -42,6 +45,26 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
     [self sendEventWithName:@"orientationDidChange"
                        body:@{@"orientation": [self getOrientationStr:orientation]}];
     
+    switch (orientation) {
+        case UIDeviceOrientationPortrait:
+            self.camOrientation = CCCameraOrientationPortrait;
+            break;
+        case UIDeviceOrientationLandscapeLeft:
+            self.camOrientation = CCCameraOrientationLandscapeLeft;
+            break;
+        case UIDeviceOrientationLandscapeRight:
+            self.camOrientation = CCCameraOrientationLandscapeRight;
+            break;
+        case UIDeviceOrientationPortraitUpsideDown:
+            self.camOrientation = CCCameraOrientationPortraitUpsideDown;
+            break;
+        default:
+            // use last known orientation (if FaceUp or FaceDown, or unknown)
+            break;
+    }
+    
+    [self sendEventWithName:@"CCCameraOrientationChange"
+                       body:@{@"orientation": [NSNumber numberWithInteger:self.camOrientation]}];
 }
 
 - (NSString *)getOrientationStr: (UIDeviceOrientation)orientation {
@@ -208,8 +231,6 @@ RCT_EXPORT_METHOD(unlockAllOrientations)
     NSLog(@"Unlock All Orientations");
 #endif
     [Orientation setOrientation:UIInterfaceOrientationMaskAllButUpsideDown];
-    //  AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    //  delegate.orientation = 3;
 }
 
 - (NSDictionary *)constantsToExport
@@ -219,7 +240,13 @@ RCT_EXPORT_METHOD(unlockAllOrientations)
     NSString *orientationStr = [self getOrientationStr:orientation];
     
     return @{
-             @"initialOrientation": orientationStr
+             @"initialOrientation": orientationStr,
+             @"Orientation": @{
+                     @"portrait": @(CCCameraOrientationPortrait),
+                     @"landscapeleft": @(CCCameraOrientationLandscapeLeft),
+                     @"landscaperight": @(CCCameraOrientationLandscapeRight),
+                     @"portraitupsidedown": @(CCCameraOrientationPortraitUpsideDown),
+                     },
              };
 }
 
