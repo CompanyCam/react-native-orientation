@@ -70,7 +70,7 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
 
         mOrientationListener = new OrientationEventListener(rctContext) {
             public void onOrientationChanged(int orientation) {
-                int nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT;
+                int nextDeviceOrientation = mDeviceOrientation;
                 if (orientation != OrientationEventListener.ORIENTATION_UNKNOWN) {
                     if ((orientation >= 315 || orientation < 45) && !(mLastOrientDeg >= 315 || mLastOrientDeg < 45)) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT;
