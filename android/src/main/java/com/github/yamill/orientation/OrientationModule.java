@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.util.Log;
+import android.view.OrientationEventListener;
 
 import com.facebook.common.logging.FLog;
 import com.facebook.react.bridge.Arguments;
@@ -27,6 +28,16 @@ import javax.annotation.Nullable;
 
 public class OrientationModule extends ReactContextBaseJavaModule implements LifecycleEventListener{
     final BroadcastReceiver receiver;
+
+    private OrientationEventListener mOrientationListener;
+    private int mLastOrientDeg = OrientationEventListener.ORIENTATION_UNKNOWN;
+
+    public static final int CC_CAMERA_ORIENTATION_PORTRAIT = 0;
+    public static final int CC_CAMERA_ORIENTATION_LANDSCAPE_LEFT = 1;
+    public static final int CC_CAMERA_ORIENTATION_LANDSCAPE_RIGHT = 2;
+    public static final int CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN = 3;
+
+    private int mDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT;
 
     public OrientationModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -50,6 +61,52 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
             }
         };
         ctx.addLifecycleEventListener(this);
+
+        initOrientationListener(ctx);
+    }
+
+    private void initOrientationListener(ReactApplicationContext context) {
+        final ReactApplicationContext rctContext = context;
+
+        mOrientationListener = new OrientationEventListener(rctContext) {
+            public void onOrientationChanged(int orientation) {
+                int nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT;
+                if (orientation != OrientationEventListener.ORIENTATION_UNKNOWN) {
+                    if ((orientation >= 315 || orientation < 45) && !(mLastOrientDeg >= 315 || mLastOrientDeg < 45)) {
+                        nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT;
+                    }
+                    else if ((orientation < 315 && orientation >= 225) && !(mLastOrientDeg < 315 && mLastOrientDeg >= 225)) {
+                        nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_LEFT;
+                    }
+                    else if ((orientation < 135 && orientation >= 45) && !(mLastOrientDeg < 135 && mLastOrientDeg >= 45)) {
+                        nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_RIGHT;
+                    }
+                    else if ((orientation < 225 && orientation >= 135) && !(mLastOrientDeg < 225 && mLastOrientDeg >= 135)) {
+                        nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN;
+                    }
+
+                    // Record the last orientation value
+                    mLastOrientDeg = orientation;
+                }
+
+                if (nextDeviceOrientation != mDeviceOrientation) {
+                  // set the changed device orientation
+                  mDeviceOrientation = nextDeviceOrientation;
+
+                  WritableMap params = Arguments.createMap();
+                  params.putInt("orientation", mDeviceOrientation);
+                  if (rctContext.hasActiveCatalystInstance()) {
+                      System.out.println("CCCameraOrientationChange");
+
+                      rctContext
+                      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                      .emit("CCCameraOrientationChange", params);
+                  }
+                }
+            };
+        };
+
+        mOrientationListener.enable();
     }
 
     @Override
@@ -126,6 +183,14 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
         } else {
             constants.put("initialOrientation", orientation);
         }
+
+        HashMap<String, Object> directionalConstants = new HashMap<String, Object>();
+        directionalConstants.put("portrait", CC_CAMERA_ORIENTATION_PORTRAIT);
+        directionalConstants.put("landscapeleft", CC_CAMERA_ORIENTATION_LANDSCAPE_LEFT);
+        directionalConstants.put("landscaperight", CC_CAMERA_ORIENTATION_LANDSCAPE_RIGHT);
+        directionalConstants.put("portraitupsidedown", CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN);
+
+        constants.put("orientationEnum", directionalConstants);
 
         return constants;
     }
