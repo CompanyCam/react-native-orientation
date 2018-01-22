@@ -26,7 +26,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-public class OrientationModule extends ReactContextBaseJavaModule implements LifecycleEventListener{
+public class OrientationModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
     final BroadcastReceiver receiver;
 
     private OrientationEventListener mOrientationListener;
@@ -54,9 +54,8 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
                 WritableMap params = Arguments.createMap();
                 params.putString("orientation", orientationValue);
                 if (ctx.hasActiveCatalystInstance()) {
-                    ctx
-                    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                    .emit("orientationDidChange", params);
+                    ctx.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("orientationDidChange",
+                            params);
                 }
             }
         };
@@ -72,16 +71,16 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
             public void onOrientationChanged(int orientation) {
                 int nextDeviceOrientation = mDeviceOrientation;
                 if (orientation != OrientationEventListener.ORIENTATION_UNKNOWN) {
-                    if ((orientation >= 315 || orientation < 45) && !(mLastOrientDeg >= 315 || mLastOrientDeg < 45)) {
+                    if ((orientation >= 325 || orientation < 35) && !(mLastOrientDeg >= 325 || mLastOrientDeg < 35)) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT;
-                    }
-                    else if ((orientation < 315 && orientation >= 225) && !(mLastOrientDeg < 315 && mLastOrientDeg >= 225)) {
+                    } else if ((orientation < 305 && orientation >= 235)
+                            && !(mLastOrientDeg < 305 && mLastOrientDeg >= 235)) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_LEFT;
-                    }
-                    else if ((orientation < 135 && orientation >= 45) && !(mLastOrientDeg < 135 && mLastOrientDeg >= 45)) {
+                    } else if ((orientation < 125 && orientation >= 55)
+                            && !(mLastOrientDeg < 125 && mLastOrientDeg >= 55)) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_RIGHT;
-                    }
-                    else if ((orientation < 225 && orientation >= 135) && !(mLastOrientDeg < 225 && mLastOrientDeg >= 135)) {
+                    } else if ((orientation < 215 && orientation >= 145)
+                            && !(mLastOrientDeg < 215 && mLastOrientDeg >= 145)) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN;
                     }
 
@@ -90,18 +89,17 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
                 }
 
                 if (nextDeviceOrientation != mDeviceOrientation) {
-                  // set the changed device orientation
-                  mDeviceOrientation = nextDeviceOrientation;
+                    // set the changed device orientation
+                    mDeviceOrientation = nextDeviceOrientation;
 
-                  WritableMap params = Arguments.createMap();
-                  params.putInt("orientation", mDeviceOrientation);
-                  if (rctContext.hasActiveCatalystInstance()) {
-                      System.out.println("CCCameraOrientationChange");
+                    WritableMap params = Arguments.createMap();
+                    params.putInt("orientation", mDeviceOrientation);
+                    if (rctContext.hasActiveCatalystInstance()) {
+                        System.out.println("CCCameraOrientationChange");
 
-                      rctContext
-                      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-                      .emit("CCCameraOrientationChange", params);
-                  }
+                        rctContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                                .emit("CCCameraOrientationChange", params);
+                    }
                 }
             };
         };
@@ -217,15 +215,15 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
         }
         activity.registerReceiver(receiver, new IntentFilter("onConfigurationChanged"));
     }
+
     @Override
     public void onHostPause() {
         final Activity activity = getCurrentActivity();
-        if (activity == null) return;
-        try
-        {
+        if (activity == null)
+            return;
+        try {
             activity.unregisterReceiver(receiver);
-        }
-        catch (java.lang.IllegalArgumentException e) {
+        } catch (java.lang.IllegalArgumentException e) {
             FLog.e(ReactConstants.TAG, "receiver already unregistered", e);
         }
     }
@@ -233,5 +231,5 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
     @Override
     public void onHostDestroy() {
 
-        }
     }
+}
