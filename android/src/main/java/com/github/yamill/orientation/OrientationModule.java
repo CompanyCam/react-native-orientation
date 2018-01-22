@@ -30,7 +30,6 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
     final BroadcastReceiver receiver;
 
     private OrientationEventListener mOrientationListener;
-    private int mLastOrientDeg = OrientationEventListener.ORIENTATION_UNKNOWN;
 
     public static final int CC_CAMERA_ORIENTATION_PORTRAIT = 0;
     public static final int CC_CAMERA_ORIENTATION_LANDSCAPE_LEFT = 1;
@@ -71,21 +70,15 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
             public void onOrientationChanged(int orientation) {
                 int nextDeviceOrientation = mDeviceOrientation;
                 if (orientation != OrientationEventListener.ORIENTATION_UNKNOWN) {
-                    if ((orientation >= 325 || orientation < 35) && !(mLastOrientDeg >= 325 || mLastOrientDeg < 35)) {
+                    if (orientation >= 325 || orientation < 35) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT;
-                    } else if ((orientation < 305 && orientation >= 235)
-                            && !(mLastOrientDeg < 305 && mLastOrientDeg >= 235)) {
+                    } else if (orientation < 305 && orientation >= 235) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_LEFT;
-                    } else if ((orientation < 125 && orientation >= 55)
-                            && !(mLastOrientDeg < 125 && mLastOrientDeg >= 55)) {
+                    } else if (orientation < 125 && orientation >= 55) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_RIGHT;
-                    } else if ((orientation < 215 && orientation >= 145)
-                            && !(mLastOrientDeg < 215 && mLastOrientDeg >= 145)) {
+                    } else if (orientation < 215 && orientation >= 145) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN;
                     }
-
-                    // Record the last orientation value
-                    mLastOrientDeg = orientation;
                 }
 
                 if (nextDeviceOrientation != mDeviceOrientation) {
