@@ -4,6 +4,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "CoreMotion/CoreMotion.h"
 #if __has_include(<React/RCTBridgeModule.h>)
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
@@ -21,7 +22,8 @@ typedef NS_ENUM( NSInteger, CCCameraOrientation ) {
 
 @interface Orientation : RCTEventEmitter <RCTBridgeModule>
 
-@property (nonatomic, assign) CCCameraOrientation camOrientation;
+@property (nonatomic, retain) CMMotionManager *motionManager;
+@property (nonatomic, assign) CCCameraOrientation lastOrientation;
 
 + (void)setOrientation: (UIInterfaceOrientationMask)orientation;
 + (UIInterfaceOrientationMask)getOrientation;
