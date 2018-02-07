@@ -76,9 +76,9 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_LEFT;
                     } else if (orientation < 125 && orientation >= 55) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_RIGHT;
-                    } else if (orientation < 215 && orientation >= 145) {
-                        nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN;
-                    }
+                    // } else if (orientation < 215 && orientation >= 145) {
+                    //     nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN;
+                    // }
                 }
 
                 if (nextDeviceOrientation != mDeviceOrientation) {

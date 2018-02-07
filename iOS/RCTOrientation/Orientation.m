@@ -74,9 +74,9 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
     else if (acceleration.y <= -0.75) {
         orientationNew = CCCameraOrientationPortrait;
     }
-    else if (acceleration.y >= 0.75) {
-        orientationNew = CCCameraOrientationPortraitUpsideDown;
-    }
+//    else if (acceleration.y >= 0.75) {
+//        orientationNew = CCCameraOrientationPortraitUpsideDown;
+//    }
     else {
         // Consider same as last time
         return;
@@ -116,6 +116,36 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
     [self.bridge.eventDispatcher sendDeviceEventWithName:@"orientationDidChange"
                                                     body:@{@"orientation": [self getOrientationStr:orientation]}];
     
+    
+    
+    // these are needed because no accelerometer in the simulator
+    
+    CCCameraOrientation orientationNew;
+    switch (orientation) {
+        case UIDeviceOrientationPortrait:
+            orientationNew = CCCameraOrientationPortrait;
+            break;
+        case UIDeviceOrientationLandscapeLeft:
+            orientationNew = CCCameraOrientationLandscapeLeft;
+            break;
+        case UIDeviceOrientationLandscapeRight:
+            orientationNew = CCCameraOrientationLandscapeRight;
+            break;
+//        case UIDeviceOrientationPortraitUpsideDown:
+//            orientationNew = CCCameraOrientationPortraitUpsideDown;
+//            break;
+        default:
+            // use last known orientation (if FaceUp or FaceDown, or unknown)
+            orientationNew = self.lastOrientation;
+            break;
+    }
+    
+    // Update the UI if the device orientation has changed
+    if (orientationNew != self.lastOrientation) {
+        self.lastOrientation = orientationNew;
+        [self sendEventWithName:@"CCCameraOrientationChange"
+                           body:@{@"orientation": [NSNumber numberWithInteger:self.lastOrientation]}];
+    }
 }
 
 - (NSString *)getOrientationStr: (UIDeviceOrientation)orientation {
