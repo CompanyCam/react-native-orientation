@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.OrientationEventListener;
+import android.view.Surface;
 
 import com.facebook.common.logging.FLog;
 import com.facebook.react.bridge.Arguments;
@@ -67,34 +68,50 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
         final ReactApplicationContext rctContext = context;
 
         mOrientationListener = new OrientationEventListener(rctContext) {
-            public void onOrientationChanged(int orientation) {
+            public void onOrientationChanged(int absOrientation) {
+
                 int nextDeviceOrientation = mDeviceOrientation;
-                if (orientation != OrientationEventListener.ORIENTATION_UNKNOWN) {
-                    if (orientation >= 325 || orientation < 35) {
+                if (absOrientation != OrientationEventListener.ORIENTATION_UNKNOWN) {
+
+                    Activity activity = rctContext.getCurrentActivity();
+                    int baseRotation = (activity == null)
+                            ? Surface.ROTATION_0
+                            : activity.getWindowManager().getDefaultDisplay().getRotation();
+                    int baseDegrees = 0;
+                    switch (baseRotation) {
+                        case Surface.ROTATION_0:    baseDegrees = 0;    break;
+                        case Surface.ROTATION_90:   baseDegrees = 90;   break;
+                        case Surface.ROTATION_180:  baseDegrees = 180;  break;
+                        case Surface.ROTATION_270:  baseDegrees = 270;  break;
+                    }
+
+                    int relOrientation = (absOrientation + baseDegrees) % 360;
+                    if (relOrientation >= 325 || relOrientation < 35) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT;
-                    } else if (orientation < 305 && orientation >= 235) {
+                    } else if (relOrientation < 305 && relOrientation >= 235) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_LEFT;
-                    } else if (orientation < 125 && orientation >= 55) {
+                    } else if (relOrientation < 125 && relOrientation >= 55) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_RIGHT;
-                    // } else if (orientation < 215 && orientation >= 145) {
-                    //     nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN;
-                    // }
+                    } else if (relOrientation < 215 && relOrientation >= 145) {
+                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN;
+                    }
+
+                    System.out.println("[OrientationModule] Activity null? " + (activity == null ? "YES" : "NO"));
+                    System.out.println("[OrientationModule] Base degrees: " + baseDegrees + ", absOrientation: " + absOrientation + ", FINAL: " + relOrientation);
                 }
 
                 if (nextDeviceOrientation != mDeviceOrientation) {
-                    // set the changed device orientation
+                    System.out.println("CCCameraOrientationChange: " + mDeviceOrientation + " -> " + nextDeviceOrientation);
                     mDeviceOrientation = nextDeviceOrientation;
 
                     WritableMap params = Arguments.createMap();
                     params.putInt("orientation", mDeviceOrientation);
                     if (rctContext.hasActiveCatalystInstance()) {
-                        System.out.println("CCCameraOrientationChange");
-
                         rctContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                 .emit("CCCameraOrientationChange", params);
                     }
                 }
-            };
+            }
         };
 
         mOrientationListener.enable();
