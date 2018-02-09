@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.OrientationEventListener;
+import android.view.Surface;
 
 import com.facebook.common.logging.FLog;
 import com.facebook.react.bridge.Arguments;
@@ -63,38 +64,73 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
         initOrientationListener(ctx);
     }
 
+    // DETAILED EXPLANATION:
+    // -------------------------------------------------------------------------------------
+    // Value from OrientationEventListener:
+    //   This is the physical rotation of the device, regardless of how the UI is oriented.
+    //   e.g.: Whether locked or not, if the device is physically held so that the
+    //   "natural left side" is upward, the value will be around 90.
+    //
+    // Value from getDefaultDisplay().getRotation():
+    //   "The angle is the rotation of the drawn graphics on the screen, which is the
+    //   opposite direction of the physical rotation of the device."
+    //   e.g.: Regardless of how the device is being held, if rotation is unlocked and the UI is
+    //   rotated so the top is along the "natural left side", the value is ROTATION_270.
+    //
+    // Final value of mDeviceOrientation:
+    //   By adding the two, we get the degrees of physical rotation relative to the device's
+    //   current UI orientation.  So e.g. "PORTRAIT" isn't necessarily portrait--it just means the
+    //   device is being held in the same orientation as the UI orientation.
+    // -------------------------------------------------------------------------------------
+
     private void initOrientationListener(ReactApplicationContext context) {
         final ReactApplicationContext rctContext = context;
 
         mOrientationListener = new OrientationEventListener(rctContext) {
-            public void onOrientationChanged(int orientation) {
+            public void onOrientationChanged(int physOrientation) {
+
                 int nextDeviceOrientation = mDeviceOrientation;
-                if (orientation != OrientationEventListener.ORIENTATION_UNKNOWN) {
-                    if (orientation >= 325 || orientation < 35) {
+                if (physOrientation != OrientationEventListener.ORIENTATION_UNKNOWN) {
+
+                    Activity activity = rctContext.getCurrentActivity();
+                    int uiRotation = (activity == null)
+                            ? Surface.ROTATION_0
+                            : activity.getWindowManager().getDefaultDisplay().getRotation();
+                    int uiDegrees = 0;
+                    switch (uiRotation) {
+                        case Surface.ROTATION_0:    uiDegrees = 0;    break;
+                        case Surface.ROTATION_90:   uiDegrees = 90;   break;
+                        case Surface.ROTATION_180:  uiDegrees = 180;  break;
+                        case Surface.ROTATION_270:  uiDegrees = 270;  break;
+                    }
+
+                    int relOrientation = (physOrientation + uiDegrees) % 360;
+                    if (relOrientation >= 325 || relOrientation < 35) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT;
-                    } else if (orientation < 305 && orientation >= 235) {
+                    } else if (relOrientation < 305 && relOrientation >= 235) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_LEFT;
-                    } else if (orientation < 125 && orientation >= 55) {
+                    } else if (relOrientation < 125 && relOrientation >= 55) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_RIGHT;
-                    // } else if (orientation < 215 && orientation >= 145) {
-                    //     nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN;
-                    // }
+                    } else if (relOrientation < 215 && relOrientation >= 145) {
+                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN;
+                    }
+
+                    System.out.println("[OrientationModule] Activity null? " + (activity == null ? "YES" : "NO"));
+                    System.out.println("[OrientationModule] UI degrees: " + uiDegrees + ", Phys degrees: " + physOrientation + ", FINAL: " + relOrientation);
                 }
 
                 if (nextDeviceOrientation != mDeviceOrientation) {
-                    // set the changed device orientation
+                    System.out.println("CCCameraOrientationChange: " + mDeviceOrientation + " -> " + nextDeviceOrientation);
                     mDeviceOrientation = nextDeviceOrientation;
 
                     WritableMap params = Arguments.createMap();
                     params.putInt("orientation", mDeviceOrientation);
                     if (rctContext.hasActiveCatalystInstance()) {
-                        System.out.println("CCCameraOrientationChange");
-
                         rctContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
                                 .emit("CCCameraOrientationChange", params);
                     }
                 }
-            };
+            }
         };
 
         mOrientationListener.enable();
