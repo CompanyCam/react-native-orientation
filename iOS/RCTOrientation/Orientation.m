@@ -74,9 +74,9 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
     else if (acceleration.y <= -0.75) {
         orientationNew = CCCameraOrientationPortrait;
     }
-//    else if (acceleration.y >= 0.75) {
-//        orientationNew = CCCameraOrientationPortraitUpsideDown;
-//    }
+    else if (acceleration.y >= 0.75) {
+        orientationNew = CCCameraOrientationPortraitUpsideDown;
+    }
     else {
         // Consider same as last time
         return;
@@ -131,9 +131,9 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
         case UIDeviceOrientationLandscapeRight:
             orientationNew = CCCameraOrientationLandscapeRight;
             break;
-//        case UIDeviceOrientationPortraitUpsideDown:
-//            orientationNew = CCCameraOrientationPortraitUpsideDown;
-//            break;
+        case UIDeviceOrientationPortraitUpsideDown:
+            orientationNew = CCCameraOrientationPortraitUpsideDown;
+            break;
         default:
             // use last known orientation (if FaceUp or FaceDown, or unknown)
             orientationNew = self.lastOrientation;
