@@ -115,8 +115,8 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
                          nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN;
                     }
 
-                    System.out.println("[OrientationModule] Activity null? " + (activity == null ? "YES" : "NO"));
-                    System.out.println("[OrientationModule] UI degrees: " + uiDegrees + ", Phys degrees: " + physOrientation + ", FINAL: " + relOrientation);
+                    // System.out.println("[OrientationModule] Activity null? " + (activity == null ? "YES" : "NO"));
+                    // System.out.println("[OrientationModule] UI degrees: " + uiDegrees + ", Phys degrees: " + physOrientation + ", FINAL: " + relOrientation);
                 }
 
                 if (nextDeviceOrientation != mDeviceOrientation) {
