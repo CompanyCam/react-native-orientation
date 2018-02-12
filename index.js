@@ -29,13 +29,13 @@ function getKey(listener) {
 
 module.exports = {
   getOrientation(cb) {
-    Orientation.getOrientation((error,orientation) =>{
+    Orientation.getOrientation((error, orientation) => {
       cb(error, orientation);
     });
   },
 
   getSpecificOrientation(cb) {
-    Orientation.getSpecificOrientation((error,orientation) =>{
+    Orientation.getSpecificOrientation((error, orientation) => {
       cb(error, orientation);
     });
   },
@@ -61,11 +61,20 @@ module.exports = {
   },
 
   addOrientationListener(cb) {
-    var key = getKey(cb);
-    listeners[key] = DeviceEventEmitter.addListener(orientationDidChangeEvent,
-      (body) => {
-        cb(body.orientation);
-      });
+    if (Platform.OS === 'ios') {
+      var key = getKey(cb);
+
+      listeners[key] = OrientationEmitter.addListener(orientationDidChangeEvent,
+        (body) => {
+          cb(body.orientation);
+        });
+    } else {
+      var key = getKey(cb);
+      listeners[key] = DeviceEventEmitter.addListener(orientationDidChangeEvent,
+        (body) => {
+          cb(body.orientation);
+        });
+    }
   },
 
   removeOrientationListener(cb) {
@@ -80,12 +89,21 @@ module.exports = {
   },
 
   addSpecificOrientationListener(cb) {
-    var key = getKey(cb);
+    if (Platform.OS === 'ios') {
+      var key = getKey(cb);
 
-    listeners[key] = DeviceEventEmitter.addListener(specificOrientationDidChangeEvent,
-      (body) => {
-        cb(body.specificOrientation);
-      });
+      listeners[key] = OrientationEmitter.addListener(specificOrientationDidChangeEvent,
+        (body) => {
+          cb(body.orientation);
+        });
+    } else {
+      var key = getKey(cb);
+
+      listeners[key] = DeviceEventEmitter.addListener(specificOrientationDidChangeEvent,
+        (body) => {
+          cb(body.specificOrientation);
+        });
+    }
   },
 
   removeSpecificOrientationListener(cb) {
