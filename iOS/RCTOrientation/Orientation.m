@@ -10,7 +10,6 @@
 #endif
 
 @implementation Orientation
-@synthesize bridge = _bridge;
 
 static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllButUpsideDown;
 + (void)setOrientation: (UIInterfaceOrientationMask)orientation {
