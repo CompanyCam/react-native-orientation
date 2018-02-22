@@ -150,6 +150,10 @@ module.exports = {
     return Orientation.initialOrientation;
   },
 
+  getInitialOrientationInt() {
+    return Orientation.initialOrientationInt;
+  },
+
   getOrientations() {
     return Orientation.orientationEnum;
   }
