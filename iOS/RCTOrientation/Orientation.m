@@ -323,6 +323,7 @@ RCT_EXPORT_METHOD(unlockAllOrientations)
     NSString *orientationStr = [self getOrientationStr:orientation];
     
     return @{
+             @"initialOrientationInt": @(orientation),
              @"initialOrientation": orientationStr,
              @"orientationEnum": @{
                      @"portrait": @(CCCameraOrientationPortrait),
