@@ -212,7 +212,7 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
         HashMap<String, Object> constants = new HashMap<String, Object>();
         int orientationInt = getReactApplicationContext().getResources().getConfiguration().orientation;
 
-        constants.put("initialOrientationInt", orientationInt);
+        constants.put("initialOrientationInt", this.getCCOrientationInt(orientationInt));
 
         String orientation = this.getOrientationString(orientationInt);
         if (orientation == "null") {
@@ -242,6 +242,21 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
         } else {
             return "null";
         }
+    }
+
+    private int getCCOrientationInt(int orientation) {
+        int ccOrientationInt;
+        switch (orientation) {
+        case Configuration.ORIENTATION_LANDSCAPE:
+            ccOrientationInt = CC_CAMERA_ORIENTATION_LANDSCAPE_LEFT;
+            break;
+        case Configuration.ORIENTATION_PORTRAIT:
+            ccOrientationInt = CC_CAMERA_ORIENTATION_PORTRAIT;
+            break;
+        default:
+            ccOrientationInt = -1;
+        }
+        return ccOrientationInt;
     }
 
     @Override
