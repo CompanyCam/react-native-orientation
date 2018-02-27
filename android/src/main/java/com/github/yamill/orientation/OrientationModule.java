@@ -163,6 +163,13 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
     }
 
     @ReactMethod
+    public void getOrientationAsCCInt(Callback callback) {
+        final int orientationInt = getReactApplicationContext().getResources().getConfiguration().orientation;
+        int ccOrientationInt = this.getCCOrientationInt(orientationInt);
+        callback.invoke(null, ccOrientationInt);
+    }
+
+    @ReactMethod
     public void lockToPortrait() {
         final Activity activity = getCurrentActivity();
         if (activity == null) {

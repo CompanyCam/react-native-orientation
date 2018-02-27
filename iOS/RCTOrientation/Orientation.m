@@ -269,6 +269,13 @@ RCT_EXPORT_METHOD(getSpecificOrientation:(RCTResponseSenderBlock)callback)
     callback(@[[NSNull null], orientationStr]);
 }
 
+RCT_EXPORT_METHOD(getOrientationAsCCInt:(RCTResponseSenderBlock)callback)
+{
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    NSNumber *ccOrientationInt = [self getCCOrientationInt:orientation];
+    callback(@[[NSNull null], ccOrientationInt]);
+}
+
 RCT_EXPORT_METHOD(lockToPortrait)
 {
 #if DEBUG
