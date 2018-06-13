@@ -82,7 +82,7 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
     }
     
     // Update the UI if the device orientation has changed
-    if (orientationNew != self.lastOrientation) {
+    if (orientationNew != self.lastOrientation && [self bridge] != nil) {
         self.lastOrientation = orientationNew;
         [self sendEventWithName:@"CCCameraOrientationChange"
                            body:@{@"orientation": [NSNumber numberWithInteger:self.lastOrientation]}];
@@ -109,9 +109,12 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
 - (void)deviceOrientationDidChange:(NSNotification *)notification
 {
     UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
-    [self sendEventWithName:@"specificOrientationDidChange" body:@{@"specificOrientation": [self getSpecificOrientationStr:orientation]}];
     
-    [self sendEventWithName:@"orientationDidChange" body:@{@"orientation": [self getOrientationStr:orientation]}];
+    if ([self bridge] != nil) {
+        [self sendEventWithName:@"specificOrientationDidChange" body:@{@"specificOrientation": [self getSpecificOrientationStr:orientation]}];
+        [self sendEventWithName:@"orientationDidChange" body:@{@"orientation": [self getOrientationStr:orientation]}];
+    }
+    
     
     
     
@@ -138,7 +141,7 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
     }
     
     // Update the UI if the device orientation has changed
-    if (orientationNew != self.lastOrientation) {
+    if (orientationNew != self.lastOrientation && [self bridge] != nil) {
         self.lastOrientation = orientationNew;
         [self sendEventWithName:@"CCCameraOrientationChange"
                            body:@{@"orientation": [NSNumber numberWithInteger:self.lastOrientation]}];
