@@ -93,15 +93,22 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
                 if (physOrientation != OrientationEventListener.ORIENTATION_UNKNOWN) {
 
                     Activity activity = rctContext.getCurrentActivity();
-                    int uiRotation = (activity == null)
-                            ? Surface.ROTATION_0
+                    int uiRotation = (activity == null) ? Surface.ROTATION_0
                             : activity.getWindowManager().getDefaultDisplay().getRotation();
                     int uiDegrees = 0;
                     switch (uiRotation) {
-                        case Surface.ROTATION_0:    uiDegrees = 0;    break;
-                        case Surface.ROTATION_90:   uiDegrees = 90;   break;
-                        case Surface.ROTATION_180:  uiDegrees = 180;  break;
-                        case Surface.ROTATION_270:  uiDegrees = 270;  break;
+                    case Surface.ROTATION_0:
+                        uiDegrees = 0;
+                        break;
+                    case Surface.ROTATION_90:
+                        uiDegrees = 90;
+                        break;
+                    case Surface.ROTATION_180:
+                        uiDegrees = 180;
+                        break;
+                    case Surface.ROTATION_270:
+                        uiDegrees = 270;
+                        break;
                     }
 
                     int relOrientation = (physOrientation + uiDegrees) % 360;
@@ -112,7 +119,7 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
                     } else if (relOrientation < 125 && relOrientation >= 55) {
                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_LANDSCAPE_RIGHT;
                     } else if (relOrientation < 215 && relOrientation >= 145) {
-                         nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN;
+                        nextDeviceOrientation = CC_CAMERA_ORIENTATION_PORTRAIT_UPSIDEDOWN;
                     }
 
                     // System.out.println("[OrientationModule] Activity null? " + (activity == null ? "YES" : "NO"));
@@ -120,7 +127,8 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
                 }
 
                 if (nextDeviceOrientation != mDeviceOrientation) {
-                    System.out.println("CCCameraOrientationChange: " + mDeviceOrientation + " -> " + nextDeviceOrientation);
+                    System.out.println(
+                            "CCCameraOrientationChange: " + mDeviceOrientation + " -> " + nextDeviceOrientation);
                     mDeviceOrientation = nextDeviceOrientation;
 
                     WritableMap params = Arguments.createMap();
@@ -152,6 +160,13 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
         } else {
             callback.invoke(null, orientation);
         }
+    }
+
+    @ReactMethod
+    public void getOrientationAsCCInt(Callback callback) {
+        final int orientationInt = getReactApplicationContext().getResources().getConfiguration().orientation;
+        int ccOrientationInt = this.getCCOrientationInt(orientationInt);
+        callback.invoke(null, ccOrientationInt);
     }
 
     @ReactMethod
@@ -204,6 +219,8 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
         HashMap<String, Object> constants = new HashMap<String, Object>();
         int orientationInt = getReactApplicationContext().getResources().getConfiguration().orientation;
 
+        constants.put("initialOrientationInt", this.getCCOrientationInt(orientationInt));
+
         String orientation = this.getOrientationString(orientationInt);
         if (orientation == "null") {
             constants.put("initialOrientation", null);
@@ -232,6 +249,21 @@ public class OrientationModule extends ReactContextBaseJavaModule implements Lif
         } else {
             return "null";
         }
+    }
+
+    private int getCCOrientationInt(int orientation) {
+        int ccOrientationInt;
+        switch (orientation) {
+        case Configuration.ORIENTATION_LANDSCAPE:
+            ccOrientationInt = CC_CAMERA_ORIENTATION_LANDSCAPE_LEFT;
+            break;
+        case Configuration.ORIENTATION_PORTRAIT:
+            ccOrientationInt = CC_CAMERA_ORIENTATION_PORTRAIT;
+            break;
+        default:
+            ccOrientationInt = -1;
+        }
+        return ccOrientationInt;
     }
 
     @Override

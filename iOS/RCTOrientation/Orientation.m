@@ -148,6 +148,29 @@ static UIInterfaceOrientationMask _orientation = UIInterfaceOrientationMaskAllBu
     }
 }
 
+- (NSNumber *)getCCOrientationInt: (UIDeviceOrientation)orientation {
+    NSNumber *ccOrientationInt;
+    switch (orientation) {
+        case UIDeviceOrientationPortrait:
+            ccOrientationInt = @(CCCameraOrientationPortrait);
+            break;
+        case UIDeviceOrientationLandscapeLeft:
+            ccOrientationInt = @(CCCameraOrientationLandscapeLeft);
+            break;
+        case UIDeviceOrientationLandscapeRight:
+            ccOrientationInt = @(CCCameraOrientationLandscapeRight);
+            break;
+        case UIDeviceOrientationPortraitUpsideDown:
+            ccOrientationInt = @(CCCameraOrientationPortraitUpsideDown);
+            break;
+        default:
+            // use last known orientation (if FaceUp or FaceDown, or unknown)
+            ccOrientationInt = @(self.lastOrientation);
+            break;
+    }
+    return ccOrientationInt;
+}
+
 - (NSString *)getOrientationStr: (UIDeviceOrientation)orientation {
     NSString *orientationStr;
     switch (orientation) {
@@ -249,6 +272,13 @@ RCT_EXPORT_METHOD(getSpecificOrientation:(RCTResponseSenderBlock)callback)
     callback(@[[NSNull null], orientationStr]);
 }
 
+RCT_EXPORT_METHOD(getOrientationAsCCInt:(RCTResponseSenderBlock)callback)
+{
+    UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
+    NSNumber *ccOrientationInt = [self getCCOrientationInt:orientation];
+    callback(@[[NSNull null], ccOrientationInt]);
+}
+
 RCT_EXPORT_METHOD(lockToPortrait)
 {
 #if DEBUG
@@ -324,8 +354,10 @@ RCT_EXPORT_METHOD(unlockAllOrientations)
     
     UIDeviceOrientation orientation = [[UIDevice currentDevice] orientation];
     NSString *orientationStr = [self getOrientationStr:orientation];
+    NSNumber *ccOrientationInt = [self getCCOrientationInt:orientation];
     
     return @{
+             @"initialOrientationInt": ccOrientationInt,
              @"initialOrientation": orientationStr,
              @"orientationEnum": @{
                      @"portrait": @(CCCameraOrientationPortrait),

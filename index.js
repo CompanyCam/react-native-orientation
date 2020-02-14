@@ -34,6 +34,12 @@ module.exports = {
     });
   },
 
+  getOrientationAsCCInt(cb) {
+    Orientation.getOrientationAsCCInt((error, orientation) => {
+      cb(error, orientation);
+    });
+  },
+
   getSpecificOrientation(cb) {
     Orientation.getSpecificOrientation((error, orientation) => {
       cb(error, orientation);
@@ -148,6 +154,10 @@ module.exports = {
 
   getInitialOrientation() {
     return Orientation.initialOrientation;
+  },
+
+  getInitialOrientationInt() {
+    return Orientation.initialOrientationInt;
   },
 
   getOrientations() {
